@@ -27,7 +27,6 @@ public class LegoSetRepository extends Repository<LegoSet> {
     public static void main(String[] args) {
         var repository = new LegoSetRepository();
         System.out.println(repository.countLegoSetsWithTag("Microscale"));
+        System.out.println("-----------------------------------------------ASD---------------------------------------------");
     }
-}
-
 }
