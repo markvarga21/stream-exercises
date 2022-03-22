@@ -1,9 +1,8 @@
 package brickset;
 
-import org.w3c.dom.ls.LSOutput;
+import lombok.NonNull;
 import repository.Repository;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -11,63 +10,63 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
+ * An enum representing the chose positions used by {@code numberOfLegoSetsUsingPcsNr} method.
+ * I used this, because no further code is allowed in methods, but a single stream, although using only a {@code String}
+ * could lead to several errors (i.e. the users enters an invalid value). Using an enum solves this problem.
+ *
+ * Positions that can be used
+ * {@link #OVER}
+ * {@link #UNDER}
+ */
+enum Position {
+    /**
+     * Under position.
+     */
+    UNDER,
+
+    /**
+     * Over position.
+     */
+    OVER
+}
+
+/**
  * Represents a repository of {@code LegoSet} objects.
  */
 public class LegoSetRepository extends Repository<LegoSet> {
 
-
+    /**
+     * Constructor for LegoSetRepository invoking the super classes constructor.
+     */
     public LegoSetRepository() {
         super(LegoSet.class, "brickset.json");
     }
 
     /**
-     * Returns the number of LEGO sets with the tag specified.
-     *
-     * @param tag a LEGO set tag
-     * @return the number of LEGO sets with the tag specified
+     * Return the number of LEGO sets under/over a certain amount of a piece number.
+     * @param underOrOver a String {@code "under"} or {@code "over"} representing the willing to return the number of lego sets under or over a number.
+     * @param nrOfPieces number of pieces for selecting.
+     * @return the number of LEGO sets under/over the number specified above.
      */
-    public long countLegoSetsWithTag(String tag) {
+    public long numberOfLegoSetsUsingPcsNr(@NonNull Position underOrOver, int nrOfPieces) {
         return getAll().stream()
-                .filter(legoSet -> legoSet.getTags() != null && legoSet.getTags().contains(tag))
+                .filter(legoSet -> underOrOver == Position.UNDER ? legoSet.getPieces() < nrOfPieces : legoSet.getPieces() > nrOfPieces)
                 .count();
     }
 
     /**
-     * Return the number of LEGO sets under/over a certain amount of piece number.
-     *
-     * @param underOrOver a non case sensitive String representing the willing to return the number of lego sets under or over a number.
-     * @param nrOfPieces number of pieces for selecting
-     * @return the number of LEGO sets under/over the numbers specified
-     */
-    public long numberOfLegoSetsUsingPcsNr(String underOrOver, int nrOfPieces) {
-        switch (underOrOver.toLowerCase()) {
-            case "under":
-                  return getAll().stream()
-                        .filter(l -> l.getPieces() < nrOfPieces)
-                        .count();
-            case "over":
-                return getAll().stream()
-                        .filter(l -> l.getPieces() > nrOfPieces)
-                        .count();
-            default:
-                System.out.println("Invalid use of underOrOver parameter!");
-                return -1;
-        }
-    }
-
-    /**
      * Returns the lego sets which have a certain theme specified using the {@code theme} parameter.
-     * @param theme the name of the interested theme
-     * @return a list of LegoSets containing the ones which have a theme specified above
+     * @param theme the name of the interested theme.
+     * @return a list of {@code LegoSet} containing the ones which have a theme specified above.
      */
-    public List<LegoSet> legoSetWithThemeOf(String theme) {
+    public List<LegoSet> legoSetWithThemeOf(@NonNull String theme) {
         return getAll().stream()
                 .filter(legoSet -> legoSet.getTheme().equals(theme))
                 .collect(Collectors.toList());
     }
 
     /**
-     * Prints the number representing the number of maximum tags in a LegoSet. If it is null, 0 is used.
+     * Prints a number, representing the maximum number of used tags in a LegoSet. If it is null, 0 is used.
      */
     public void printMaxTagNumber() {
         getAll().stream()
@@ -77,8 +76,8 @@ public class LegoSetRepository extends Repository<LegoSet> {
     }
 
     /**
-     * Calculates the volume of a fully made LegoSet, and returns the one which takes up the most place (aka. the biggest volume)
-     * @return a String representing the name of the LegoSet.
+     * Calculates the volume of a fully made LegoSet, and returns the one which takes up the most place (the biggest volume).
+     * @return a {@code String} representing the name of the {@code LegoSet}.
      */
     public String biggestSizeLego() {
         return getAll().stream()
@@ -101,9 +100,9 @@ public class LegoSetRepository extends Repository<LegoSet> {
     }
 
     /**
-     * Calculates how many LegoSets are using each of the {@code} PackagingType.
-     * The format is: {..., PackagingType=NumberOfLegoSetsUsingThisType, ...}
-     * @return a Map in which are the number of LegoSets for each packaging type.
+     * Calculates how many LegoSets are using each of the {@code PackagingType}.
+     * The format is: {@code {..., PackagingType=NumberOfLegoSetsUsingThisType, ...}}
+     * @return a {@code Map} in which are the number of {@code LegoSet} for each packaging type.
      */
     public Map<String, Long> legoSetCountByPackagingType() {
         return getAll().stream()
@@ -113,17 +112,14 @@ public class LegoSetRepository extends Repository<LegoSet> {
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
     }
 
-
     public static void main(String[] args) {
         // creating and initializing lego set repository
         var repository = new LegoSetRepository();
 
-
         // 1st method
         System.out.println("<---------------------------------------------- 1st method ---------------------------------------------->");
-        String underOrOver = "under";
         int nrOfPieces = 500;
-        System.out.println("The number of lego sets which have less than 500 pieces: " + repository.numberOfLegoSetsUsingPcsNr(underOrOver, nrOfPieces));
+        System.out.println("The number of lego sets which have less than 500 pieces: " + repository.numberOfLegoSetsUsingPcsNr(Position.UNDER, nrOfPieces));
 
 
         // 2nd method
