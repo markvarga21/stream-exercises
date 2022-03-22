@@ -1,8 +1,13 @@
 package brickset;
 
+import org.w3c.dom.ls.LSOutput;
 import repository.Repository;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +66,52 @@ public class LegoSetRepository extends Repository<LegoSet> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Prints the number representing the number of maximum tags in a LegoSet. If it is null, 0 is used.
+     */
+    public void printMaxTagNumber() {
+        getAll().stream()
+                .mapToInt(legoSet -> legoSet.getTags() != null ? legoSet.getTags().size() : 0)
+                .max()
+                .ifPresent(System.out::println);
+    }
+
+    /**
+     * Calculates the volume of a fully made LegoSet, and returns the one which takes up the most place (aka. the biggest volume)
+     * @return a String representing the name of the LegoSet.
+     */
+    public String biggestSizeLego() {
+        return getAll().stream()
+                .filter(legoSet -> legoSet.getDimensions() != null &&
+                        legoSet.getDimensions().getDepth() != null && legoSet.getDimensions().getHeight() != null && legoSet.getDimensions().getWidth() != null)
+                .max((o1, o2) -> {
+                    double o1Depth = o1.getDimensions().getDepth();
+                    double o1Height = o1.getDimensions().getHeight();
+                    double o1Width = o1.getDimensions().getWidth();
+                    double o1Volume = o1Depth*o1Height*o1Width;
+
+                    double o2Depth = o2.getDimensions().getDepth();
+                    double o2Height = o2.getDimensions().getHeight();
+                    double o2Width = o2.getDimensions().getWidth();
+                    double o2Volume = o2Depth*o2Height*o2Width;
+
+                    return Double.compare(o1Volume, o2Volume);
+                })
+                .get().getName();
+    }
+
+    /**
+     * Calculates how many LegoSets are using each of the {@code} PackagingType.
+     * The format is: {..., PackagingType=NumberOfLegoSetsUsingThisType, ...}
+     * @return a Map in which are the number of LegoSets for each packaging type.
+     */
+    public Map<String, Long> legoSetCountByPackagingType() {
+        return getAll().stream()
+                .map(LegoSet::getPackagingType)
+                .filter(Objects::nonNull)
+                .map(Enum::toString)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+    }
 
 
     public static void main(String[] args) {
@@ -82,7 +133,19 @@ public class LegoSetRepository extends Repository<LegoSet> {
         System.out.println("Lego sets with a theme of " + theme + ":");
         legoSets.forEach(System.out::println);
 
+        // 3rd method
+        System.out.println("<---------------------------------------------- 3rd method ---------------------------------------------->");
+        System.out.print("Max number of tags used in LegoSets: ");
+        repository.printMaxTagNumber();
 
+        // 4th method
+        System.out.println("<---------------------------------------------- 4th method ---------------------------------------------->");
+        System.out.println("Max dimension LegoSet name: " + repository.biggestSizeLego());
 
+        // 5th method
+        System.out.println("<---------------------------------------------- 5th method ---------------------------------------------->");
+        System.out.println("Numbers of LegoSets in each packaging type: ");
+        Map<String, Long> groupingByPackageType = repository.legoSetCountByPackagingType();
+        System.out.println(groupingByPackageType);
     }
 }
