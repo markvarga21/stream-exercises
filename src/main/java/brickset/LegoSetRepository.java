@@ -44,7 +44,7 @@ public class LegoSetRepository extends Repository<LegoSet> {
 
     /**
      * Return the number of LEGO sets under/over a certain amount of a piece number.
-     * @param underOrOver a String {@code "under"} or {@code "over"} representing the willing to return the number of lego sets under or over a number.
+     * @param underOrOver an Enum {@code Position.UNDER} or {@code Position.OVER} representing the willing to return the number of lego sets under or over a number.
      * @param nrOfPieces number of pieces for selecting.
      * @return the number of LEGO sets under/over the number specified above.
      */
@@ -66,7 +66,7 @@ public class LegoSetRepository extends Repository<LegoSet> {
     }
 
     /**
-     * Prints a number, representing the maximum number of used tags in a LegoSet. If it is null, 0 is used.
+     * Prints a number, representing the maximum number of used tags in a LegoSet. If it ({@code tags} is null, 0 is used instead of null.
      */
     public void printMaxTagNumber() {
         getAll().stream()
@@ -76,7 +76,7 @@ public class LegoSetRepository extends Repository<LegoSet> {
     }
 
     /**
-     * Calculates the volume of a fully made LegoSet, and returns the one which takes up the most place (the biggest volume).
+     * Calculates the volume of a fully made {@code LegoSet}, and returns the one which takes up the most place (the biggest volume).
      * @return a {@code String} representing the name of the {@code LegoSet}.
      */
     public String biggestSizeLego() {
@@ -102,7 +102,7 @@ public class LegoSetRepository extends Repository<LegoSet> {
     /**
      * Calculates how many LegoSets are using each of the {@code PackagingType}.
      * The format is: {@code {..., PackagingType=NumberOfLegoSetsUsingThisType, ...}}
-     * @return a {@code Map} in which are the number of {@code LegoSet} for each packaging type.
+     * @return a {@code Map<String, Long>} in which are the number of {@code LegoSet} for each packaging type.
      */
     public Map<String, Long> legoSetCountByPackagingType() {
         return getAll().stream()
@@ -119,7 +119,7 @@ public class LegoSetRepository extends Repository<LegoSet> {
         // 1st method
         System.out.println("<---------------------------------------------- 1st method ---------------------------------------------->");
         int nrOfPieces = 500;
-        System.out.println("The number of lego sets which have less than 500 pieces: " + repository.numberOfLegoSetsUsingPcsNr(Position.UNDER, nrOfPieces));
+        System.out.println("The number of lego sets which have less than " + nrOfPieces + " pieces: " + repository.numberOfLegoSetsUsingPcsNr(Position.UNDER, nrOfPieces));
 
 
         // 2nd method
